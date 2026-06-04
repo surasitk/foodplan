@@ -282,7 +282,8 @@ let state={team:null, day:TODAY_KEY, range:"entered", view:"home"};
 
 /* storage */
 const LS=localStorage;
-const getUrl=()=>LS.getItem("fp_csvurl")||"";
+const DEFAULT_CSV="https://docs.google.com/spreadsheets/d/e/2PACX-1vS_JTCLBHAOlfvzJDlNmkq0-db1ZhD2YJs5dbLOQSzxrRon2gTVxyr6jyqghtmifKDCFaXqrXp7u9_v/pub?gid=1067785592&single=true&output=csv";
+const getUrl=()=>{const v=LS.getItem("fp_csvurl");return (v===null?DEFAULT_CSV:v);};
 const setUrl=u=>LS.setItem("fp_csvurl",u);
 const targetsStore=()=>{try{return JSON.parse(LS.getItem("fp_targets")||"{}");}catch(e){return{};}};
 const saveTargets=o=>LS.setItem("fp_targets",JSON.stringify(o));
