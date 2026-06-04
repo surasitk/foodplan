@@ -37,7 +37,7 @@
     padding:4px 0 10px;}
   .tab{flex:1;text-align:center;padding:10px;border:1px solid var(--border);border-radius:10px;
     background:#fff;font-weight:600;cursor:pointer;color:var(--muted);}
-  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 3px 10px rgba(37,99,235,.28);}
 
   .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
     box-shadow:var(--shadow);padding:14px;margin-bottom:12px;}
@@ -64,10 +64,11 @@
   .stat .suf{font-size:12px;margin-top:6px;font-weight:600;}
   .pos{color:var(--good);} .neg{color:var(--bad);}
 
-  .meal{border:1px solid var(--border);border-radius:11px;padding:12px;margin-bottom:8px;cursor:pointer;transition:background .12s;}
-  .meal:active{background:#eef4ff;}
-  .meal .edithint{font-size:12px;opacity:.55;font-weight:400;margin-left:4px;}
-  .meal .mh{font-weight:660;display:flex;justify-content:space-between;margin-bottom:4px;}
+  .meal{border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:9px;cursor:pointer;transition:transform .1s,background .12s,box-shadow .12s;}
+  .meal:active{background:#eef4ff;transform:scale(.99);}
+  .meal .mname{display:inline-flex;align-items:center;gap:6px;}
+  .meal .edit-ico{font-size:13px;color:var(--accent);opacity:.7;}
+  .meal .mh{font-weight:660;display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
   .meal .mh .cal{color:var(--accent);}
   .meal .macros{display:flex;gap:14px;color:var(--muted);font-size:12.5px;}
   .meal .macros b{color:var(--text);}
@@ -94,11 +95,12 @@
   details.setup[open] summary{margin-bottom:10px;}
 
   /* floating CTA */
-  .fab{position:fixed;left:50%;transform:translateX(-50%);
-    bottom:calc(18px + env(safe-area-inset-bottom));z-index:30;
-    background:var(--accent);color:#fff;border:none;border-radius:30px;
-    padding:14px 22px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;
-    box-shadow:0 6px 18px rgba(37,99,235,.35);display:flex;align-items:center;gap:8px;}
+  .fab{position:fixed;right:16px;left:auto;transform:none;
+    bottom:calc(20px + env(safe-area-inset-bottom));z-index:30;
+    background:var(--accent);color:#fff;border:none;border-radius:28px;
+    padding:13px 20px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;
+    box-shadow:0 8px 22px rgba(37,99,235,.4);display:flex;align-items:center;gap:7px;}
+  .fab:active{transform:scale(.96);}
   .fab .plus{font-size:20px;line-height:1;}
 
   /* modal */
@@ -439,7 +441,7 @@ function render(){
   const present=order.filter(m=>day.meals&&day.meals[m]).concat(Object.keys(day.meals||{}).filter(m=>!order.includes(m)));
   $("mealDateLbl").textContent="— "+day.dateLabel+(present.length?" • แตะมื้อเพื่อแก้ไข":"");
   $("mealgrid").innerHTML=present.length?present.map(m=>{const v=day.meals[m];
-    return `<div class="meal" data-meal="${m}"><div class="mh"><span>${m}<span class="edithint">✏️ แก้ไข</span></span><span class="cal">${fmt(v.cal)} kcal</span></div>
+    return `<div class="meal" data-meal="${m}"><div class="mh"><span class="mname">${m}<span class="edit-ico">✎</span></span><span class="cal">${fmt(v.cal)} kcal</span></div>
       <div class="macros"><span>P <b>${fmt(v.pro)}</b></span><span>F <b>${fmt(v.fat)}</b></span><span>C <b>${fmt(v.car)}</b></span></div></div>`;}).join("")
     :`<div class="muted">ยังไม่มีข้อมูลมื้อในวันนี้ — กดปุ่ม “+ เพิ่มมื้อ” ด้านล่าง</div>`;
 
