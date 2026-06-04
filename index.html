@@ -46,9 +46,11 @@
 
   label.fld{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px;}
   input,select{font:inherit;padding:10px;border:1px solid var(--border);border-radius:10px;
-    background:#fff;color:var(--text);width:100%;}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    background:#fff;color:var(--text);width:100%;min-width:0;-webkit-appearance:none;appearance:none;}
+  input[type=date]{text-align:left;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
+  .grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
+  .grid2>*,.grid4>*{min-width:0;}
   .btnrow{display:flex;gap:8px;margin-top:10px;}
   .btnrow .iconbtn{flex:1;}
   select.team{font-size:16px;font-weight:600;padding:11px;}
