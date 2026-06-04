@@ -62,7 +62,9 @@
   .stat .suf{font-size:12px;margin-top:6px;font-weight:600;}
   .pos{color:var(--good);} .neg{color:var(--bad);}
 
-  .meal{border:1px solid var(--border);border-radius:11px;padding:10px;margin-bottom:8px;}
+  .meal{border:1px solid var(--border);border-radius:11px;padding:12px;margin-bottom:8px;cursor:pointer;transition:background .12s;}
+  .meal:active{background:#eef4ff;}
+  .meal .edithint{font-size:12px;opacity:.55;font-weight:400;margin-left:4px;}
   .meal .mh{font-weight:660;display:flex;justify-content:space-between;margin-bottom:4px;}
   .meal .mh .cal{color:var(--accent);}
   .meal .macros{display:flex;gap:14px;color:var(--muted);font-size:12.5px;}
@@ -279,6 +281,31 @@
   </div>
 </div>
 
+<!-- edit-meal modal -->
+<div class="overlay" id="editOverlay">
+  <div class="sheet">
+    <div class="grabber"></div>
+    <h3 id="e_title">แก้ไขมื้อ</h3>
+    <div class="note">แก้ได้เฉพาะในเครื่องนี้ (ไม่เขียนกลับเข้าชีต)</div>
+    <label class="fld" style="margin-bottom:10px">มื้อ
+      <select id="e_meal"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select>
+    </label>
+    <div class="grid4">
+      <label class="fld">Cal<input type="number" inputmode="decimal" id="e_cal"></label>
+      <label class="fld">Protein<input type="number" inputmode="decimal" id="e_pro"></label>
+      <label class="fld">Fats<input type="number" inputmode="decimal" id="e_fat"></label>
+      <label class="fld">Carb<input type="number" inputmode="decimal" id="e_car"></label>
+    </div>
+    <div class="btnrow">
+      <button class="iconbtn" id="e_cancel">ยกเลิก</button>
+      <button class="iconbtn primary" id="e_save">บันทึก</button>
+    </div>
+    <div class="btnrow" style="margin-top:8px">
+      <button class="iconbtn" id="e_delete" style="color:var(--bad);width:100%">ลบมื้อนี้</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -304,6 +331,11 @@ const localEntries=()=>{try{return JSON.parse(LS.getItem("fp_local")||"[]");}cat
 const saveLocal=a=>LS.setItem("fp_local",JSON.stringify(a));
 const getAiUrl=()=>LS.getItem("fp_aiurl")||"";
 const setAiUrl=u=>LS.setItem("fp_aiurl",u);
+/* per-meal edits (overrides), stored per team/date/meal. value object replaces that slot; null hides it */
+const overridesStore=()=>{try{return JSON.parse(LS.getItem("fp_overrides")||"{}");}catch(e){return{};}};
+function setOverride(team,date,slot,val){const s=overridesStore();s[team]=s[team]||{};s[team][date]=s[team][date]||{};s[team][date][slot]=val;LS.setItem("fp_overrides",JSON.stringify(s));}
+function clearOverrides(){LS.removeItem("fp_overrides");}
+function countOverrides(team){const s=overridesStore()[team]||{};let n=0;for(const d in s)for(const m in s[d])n++;return n;}
 
 /* helpers */
 const $=id=>document.getElementById(id);
@@ -346,12 +378,19 @@ function recordsFor(team){
       cal:num(r.cal),pro:num(r.pro),fat:num(r.fat),car:num(r.car),source:"local"};});
   return sheet.concat(loc);
 }
-function byDay(records){
+function byDay(records,team){
   const map=new Map();
   for(const r of records){
     if(!map.has(r.dateKey))map.set(r.dateKey,{dateKey:r.dateKey,dateObj:r.dateObj,dateLabel:r.dateLabel,cal:0,pro:0,fat:0,car:0,meals:{}});
-    const d=map.get(r.dateKey);d.cal+=r.cal;d.pro+=r.pro;d.fat+=r.fat;d.car+=r.car;
+    const d=map.get(r.dateKey);
     if(r.meal){if(!d.meals[r.meal])d.meals[r.meal]={cal:0,pro:0,fat:0,car:0};const m=d.meals[r.meal];m.cal+=r.cal;m.pro+=r.pro;m.fat+=r.fat;m.car+=r.car;}
+  }
+  const store=overridesStore()[team]||{};
+  for(const d of map.values()){
+    const dov=store[d.dateKey];
+    if(dov){for(const slot in dov){const o=dov[slot];if(o===null)delete d.meals[slot];else d.meals[slot]={cal:num(o.cal),pro:num(o.pro),fat:num(o.fat),car:num(o.car)};}}
+    let c=0,p=0,f=0,cb=0;for(const m in d.meals){const x=d.meals[m];c+=x.cal;p+=x.pro;f+=x.fat;cb+=x.car;}
+    d.cal=c;d.pro=p;d.fat=f;d.car=cb;
   }
   return Array.from(map.values()).sort((a,b)=>a.dateObj-b.dateObj);
 }
@@ -376,7 +415,7 @@ function showView(v){
 function render(){
   if(!state.team)return;
   const recs=recordsFor(state.team);
-  const days=byDay(recs);
+  const days=byDay(recs,state.team);
   const entered=days.filter(d=>d.cal||d.pro||d.fat||d.car);
   const tgt=getTarget(state.team);
 
@@ -396,9 +435,9 @@ function render(){
 
   const order=["Breakfast","Lunch","Dinner","Snack"];
   const present=order.filter(m=>day.meals&&day.meals[m]).concat(Object.keys(day.meals||{}).filter(m=>!order.includes(m)));
-  $("mealDateLbl").textContent="— "+day.dateLabel;
+  $("mealDateLbl").textContent="— "+day.dateLabel+(present.length?" • แตะมื้อเพื่อแก้ไข":"");
   $("mealgrid").innerHTML=present.length?present.map(m=>{const v=day.meals[m];
-    return `<div class="meal"><div class="mh"><span>${m}</span><span class="cal">${fmt(v.cal)} kcal</span></div>
+    return `<div class="meal" data-meal="${m}"><div class="mh"><span>${m}<span class="edithint">✏️ แก้ไข</span></span><span class="cal">${fmt(v.cal)} kcal</span></div>
       <div class="macros"><span>P <b>${fmt(v.pro)}</b></span><span>F <b>${fmt(v.fat)}</b></span><span>C <b>${fmt(v.car)}</b></span></div></div>`;}).join("")
     :`<div class="muted">ยังไม่มีข้อมูลมื้อในวันนี้ — กดปุ่ม “+ เพิ่มมื้อ” ด้านล่าง</div>`;
 
@@ -415,8 +454,8 @@ function render(){
 
   renderCharts(entered.length?entered:days.slice(0,30),tgt);
 
-  const lc=localEntries().filter(r=>r.team===state.team).length;
-  $("localNote").textContent=lc?(lc+" รายการ local สำหรับทีมนี้ (รวมในการคำนวณแล้ว)"):"ยังไม่มีรายการ local";
+  const lc=localEntries().filter(r=>r.team===state.team).length;const ov=countOverrides(state.team);
+  $("localNote").textContent=(lc||ov)?(`เพิ่มในเครื่อง ${lc} รายการ • แก้ไขมื้อ ${ov} รายการ (รวมในการคำนวณแล้ว)`):"ยังไม่มีข้อมูลที่เพิ่ม/แก้ในเครื่อง";
 }
 function renderCharts(days,tgt){
   const labels=days.map(d=>d.dateLabel.replace(/ \d{4}$/,""));
@@ -520,7 +559,31 @@ $("addBtn").addEventListener("click",()=>{
   if(state.view!=="home")showView("home");
   state.day=dv;render();toast("เพิ่มมื้อแล้ว ✓");
 });
-$("clearLocal").addEventListener("click",()=>{if(confirm("ล้างรายการ local ทั้งหมด?")){saveLocal([]);render();toast("ล้าง local แล้ว");}});
+$("clearLocal").addEventListener("click",()=>{if(confirm("ล้างมื้อที่เพิ่ม/แก้ในเครื่องทั้งหมด?")){saveLocal([]);clearOverrides();render();toast("ล้างข้อมูลในเครื่องแล้ว");}});
+
+/* edit-meal modal */
+let editSlot=null;
+function openEdit(slot){
+  const day=byDay(recordsFor(state.team),state.team).find(d=>d.dateKey===state.day);
+  const v=day&&day.meals[slot];if(!v)return;
+  editSlot=slot;
+  $("e_title").textContent="แก้ไขมื้อ — "+day.dateLabel;
+  $("e_meal").value=["Breakfast","Lunch","Dinner","Snack"].includes(slot)?slot:"Breakfast";
+  e_cal.value=v.cal;e_pro.value=v.pro;e_fat.value=v.fat;e_car.value=v.car;
+  $("editOverlay").classList.add("open");
+}
+function closeEdit(){$("editOverlay").classList.remove("open");}
+$("mealgrid").addEventListener("click",e=>{const c=e.target.closest(".meal[data-meal]");if(c)openEdit(c.getAttribute("data-meal"));});
+$("e_cancel").addEventListener("click",closeEdit);
+$("editOverlay").addEventListener("click",e=>{if(e.target===$("editOverlay"))closeEdit();});
+$("e_save").addEventListener("click",()=>{
+  const newSlot=$("e_meal").value;
+  const vals={cal:num(e_cal.value),pro:num(e_pro.value),fat:num(e_fat.value),car:num(e_car.value)};
+  if(newSlot!==editSlot)setOverride(state.team,state.day,editSlot,null);
+  setOverride(state.team,state.day,newSlot,vals);
+  closeEdit();render();toast("แก้ไขมื้อแล้ว ✓");
+});
+$("e_delete").addEventListener("click",()=>{if(confirm("ลบมื้อนี้ออกจากวันนี้?")){setOverride(state.team,state.day,editSlot,null);closeEdit();render();toast("ลบมื้อแล้ว");}});
 
 /* one-time migration: replace old auto-saved TitchJane default (1500/110/50/150) with new target */
 (function(){const s=targetsStore();const t=s.TitchJane;if(t&&t.cal===1500&&t.pro===110&&t.fat===50&&t.car===150){s.TitchJane={cal:1290,pro:110,fat:40,car:130};saveTargets(s);}})();
