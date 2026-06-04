@@ -11,8 +11,8 @@
  * The Worker returns: { calories, protein, fats, carbs, items, confidence, note }
  */
 
-const PROMPT = `You are a careful nutrition estimator. The attached photo(s) show ONE meal (there may be several dishes, or the same meal from multiple angles — do NOT double count).
-Estimate the TOTAL nutrition for the whole meal.
+const PROMPT = `You are a careful nutrition estimator. You are given a food photo (optional), a text description (optional), or both — describing ONE meal (there may be several dishes, or the same meal from multiple angles — do NOT double count).
+Estimate the TOTAL nutrition for the whole meal. If a text description is provided, weigh it heavily (it may specify ingredients or portions the photo can't show).
 Reply with ONLY a JSON object, no markdown, no prose, exactly in this shape:
 {"calories":<kcal as number>,"protein":<grams number>,"fats":<grams number>,"carbs":<grams number>,"items":["dish — est. portion", "..."],"confidence":"low|medium|high","note":"<short note in Thai>"}
 Rules: numbers only (no units, no ranges — pick a single best estimate). Account for cooking oil and sauces. If portion is unclear, assume a typical single serving.`;
@@ -35,7 +35,8 @@ export default {
     catch { return json({ error: "Invalid JSON body" }, 400, cors); }
 
     const images = Array.isArray(body.images) ? body.images : [];
-    if (!images.length) return json({ error: "No images provided" }, 400, cors);
+    const description = (body.description || "").toString().trim();
+    if (!images.length && !description) return json({ error: "No images or description provided" }, 400, cors);
 
     const content = [];
     for (const img of images.slice(0, 6)) {
@@ -44,7 +45,10 @@ export default {
       const data = m ? m[2] : img;
       content.push({ type: "image", source: { type: "base64", media_type, data } });
     }
-    content.push({ type: "text", text: PROMPT });
+    const promptText = description
+      ? PROMPT + "\n\nUser-provided description (ingredients / portions — weigh this heavily): " + description
+      : PROMPT;
+    content.push({ type: "text", text: promptText });
 
     const payload = {
       model: env.MODEL || "claude-sonnet-4-6",

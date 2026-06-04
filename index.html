@@ -45,8 +45,9 @@
   .card h2 .note{font-weight:400;color:var(--muted);font-size:11.5px;}
 
   label.fld{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px;}
-  input,select{font:inherit;padding:10px;border:1px solid var(--border);border-radius:10px;
+  input,select,textarea{font:inherit;padding:10px;border:1px solid var(--border);border-radius:10px;
     background:#fff;color:var(--text);width:100%;min-width:0;-webkit-appearance:none;appearance:none;}
+  textarea{resize:vertical;min-height:44px;line-height:1.4;}
   input[type=date]{text-align:left;}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
   .grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
@@ -270,7 +271,10 @@
     <label class="fld" style="margin-bottom:8px">📷 รูปอาหาร (ถ่าย/เลือกได้หลายรูป)
       <input type="file" id="a_photos" accept="image/*" capture="environment" multiple>
     </label>
-    <button class="iconbtn primary" id="analyzeBtn" type="button" style="width:100%;margin-bottom:8px">วิเคราะห์ด้วย AI</button>
+    <label class="fld" style="margin-bottom:8px">📝 อธิบายอาหาร/วัตถุดิบ (ถ้ามี)
+      <textarea id="a_desc" rows="2" placeholder="เช่น ข้าวสวย 1 จาน + ไก่ย่าง 1 ชิ้น + น้ำจิ้มแจ่ว"></textarea>
+    </label>
+    <button class="iconbtn primary" id="analyzeBtn" type="button" style="width:100%;margin-bottom:8px">วิเคราะห์ด้วย AI (รูป/คำอธิบาย)</button>
     <div id="aiStatus" class="footnote" style="margin:0 0 10px"></div>
     <div class="grid4">
       <label class="fld">Cal<input type="number" inputmode="decimal" id="a_cal"></label>
@@ -524,7 +528,7 @@ $("saveUrl").addEventListener("click",()=>{setUrl($("csvUrl").value.trim());$("s
 $("clearUrl").addEventListener("click",()=>{$("csvUrl").value="";setUrl("");});
 
 /* add-meal modal */
-function openAdd(){$("a_date").value=state.day||TODAY_KEY;$("a_photos").value="";$("aiStatus").textContent="";$("overlay").classList.add("open");}
+function openAdd(){$("a_date").value=state.day||TODAY_KEY;$("a_photos").value="";$("a_desc").value="";$("aiStatus").textContent="";$("overlay").classList.add("open");}
 function closeAdd(){$("overlay").classList.remove("open");}
 
 /* downscale an image file to a compact JPEG data URL */
@@ -534,12 +538,13 @@ async function analyzePhotos(){
   const url=getAiUrl();
   if(!url){alert("ยังไม่ได้ตั้งค่า AI Worker URL\nไปที่แท็บ โปรไฟล์ ▸ ตั้งค่าแหล่งข้อมูล แล้วใส่ลิงก์ Worker");return;}
   const files=Array.from(($("a_photos").files)||[]);
-  if(!files.length){alert("ถ่ายหรือเลือกรูปอาหารก่อน");return;}
+  const desc=$("a_desc").value.trim();
+  if(!files.length&&!desc){alert("ถ่าย/เลือกรูป หรือพิมพ์อธิบายอาหารก่อน");return;}
   const st=$("aiStatus"),btn=$("analyzeBtn");
-  st.innerHTML="กำลังวิเคราะห์รูป… (อาจใช้เวลาสองสามวินาที)";btn.disabled=true;
+  st.innerHTML="กำลังวิเคราะห์… (อาจใช้เวลาสองสามวินาที)";btn.disabled=true;
   try{
     const images=[];for(const f of files.slice(0,6))images.push(await fileToDataURL(f));
-    const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({images})});
+    const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({images,description:desc})});
     const d=await r.json().catch(()=>({error:"อ่านผลลัพธ์ไม่ได้"}));
     if(!r.ok||d.error)throw new Error(d.error||("HTTP "+r.status));
     a_cal.value=d.calories||"";a_pro.value=d.protein||"";a_fat.value=d.fats||"";a_car.value=d.carbs||"";
