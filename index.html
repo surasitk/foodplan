@@ -14,25 +14,36 @@
   :root{
     color-scheme: light;
     --bg:#f7f8fa; --card:#fff; --border:#e6e8ec; --text:#1d2129; --muted:#6b7280;
-    --accent:#2563eb; --good:#16a34a; --bad:#dc2626; --warn:#d97706; --chip:#eef2f7;
+    --accent:#2563eb; --good:#16a34a; --bad:#dc2626; --warn:#d97706; --under:#a16207; --chip:#eef2f7;
     --shadow:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.04);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   body{margin:0;background:var(--bg);color:var(--text);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue","Sarabun",Arial,sans-serif;
-    font-size:15px;line-height:1.45;padding-bottom:env(safe-area-inset-bottom);}
-  .wrap{max-width:680px;margin:0 auto;padding:14px;}
-  header.app{position:sticky;top:0;z-index:5;background:var(--bg);
-    padding:10px 0 8px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
-  h1{font-size:18px;margin:0;font-weight:680;}
+    font-size:15px;line-height:1.45;padding-bottom:calc(96px + env(safe-area-inset-bottom));}
+  .wrap{max-width:680px;margin:0 auto;padding:0 14px 14px;}
+
+  header.app{position:sticky;top:0;z-index:20;background:var(--bg);
+    padding:12px 0 6px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  h1{font-size:18px;margin:0;font-weight:700;}
   .sub{color:var(--muted);font-size:12px;margin-top:2px;}
   .iconbtn{font:inherit;border:1px solid var(--border);background:#fff;border-radius:10px;
     padding:8px 12px;cursor:pointer;font-weight:600;color:var(--text);}
   .iconbtn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .iconbtn.ghost{background:transparent;}
+
+  /* tab bar */
+  .tabbar{position:sticky;top:54px;z-index:19;background:var(--bg);display:flex;gap:6px;
+    padding:4px 0 10px;}
+  .tab{flex:1;text-align:center;padding:10px;border:1px solid var(--border);border-radius:10px;
+    background:#fff;font-weight:600;cursor:pointer;color:var(--muted);}
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+
   .card{background:var(--card);border:1px solid var(--border);border-radius:14px;
     box-shadow:var(--shadow);padding:14px;margin-bottom:12px;}
-  .card h2{font-size:14px;margin:0 0 10px;font-weight:640;}
+  .card h2{font-size:14px;margin:0 0 10px;font-weight:660;}
   .card h2 .note{font-weight:400;color:var(--muted);font-size:11.5px;}
+
   label.fld{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px;}
   input,select{font:inherit;padding:10px;border:1px solid var(--border);border-radius:10px;
     background:#fff;color:var(--text);width:100%;}
@@ -40,7 +51,8 @@
   .grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .btnrow{display:flex;gap:8px;margin-top:10px;}
   .btnrow .iconbtn{flex:1;}
-  select.team{font-size:15px;font-weight:600;padding:10px;}
+  select.team{font-size:16px;font-weight:600;padding:11px;}
+
   .cards-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
   .stat{border:1px solid var(--border);border-radius:12px;padding:11px;}
   .stat .k{font-size:11.5px;color:var(--muted);}
@@ -49,29 +61,61 @@
   .stat .bar>span{display:block;height:100%;background:var(--accent);}
   .stat .suf{font-size:12px;margin-top:6px;font-weight:600;}
   .pos{color:var(--good);} .neg{color:var(--bad);}
+
   .meal{border:1px solid var(--border);border-radius:11px;padding:10px;margin-bottom:8px;}
-  .meal .mh{font-weight:640;display:flex;justify-content:space-between;margin-bottom:4px;}
+  .meal .mh{font-weight:660;display:flex;justify-content:space-between;margin-bottom:4px;}
   .meal .mh .cal{color:var(--accent);}
   .meal .macros{display:flex;gap:14px;color:var(--muted);font-size:12.5px;}
   .meal .macros b{color:var(--text);}
+
   .tablewrap{overflow:auto;border:1px solid var(--border);border-radius:10px;-webkit-overflow-scrolling:touch;}
   table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:520px;}
   th,td{padding:8px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap;}
   th{color:var(--muted);background:#fbfcfd;position:sticky;top:0;}
   td.date,th.date{text-align:left;position:sticky;left:0;background:#fff;}
   th.date{background:#fbfcfd;}
-  .sufcell.p{color:var(--good);font-weight:600;} .sufcell.n{color:var(--bad);font-weight:600;}
+  .sufcell{font-weight:600;}
+  .cl-ok{color:var(--good);} .cl-over{color:var(--bad);} .cl-under{color:var(--under);}
+  .today-row td{background:#eff6ff;}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:6px;}
+  .legend .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+  .dot.ok{background:var(--good);} .dot.over{background:var(--bad);} .dot.under{background:#f5c518;}
+
   .muted{color:var(--muted);} .footnote{font-size:11.5px;color:var(--muted);margin-top:6px;}
   .err{background:#fdeaea;color:var(--bad);padding:10px 12px;border-radius:10px;font-size:13px;margin-bottom:12px;}
-  .ok{background:#e8f6ee;color:var(--good);padding:8px 12px;border-radius:10px;font-size:12.5px;}
   canvas{max-height:230px;}
-  details.setup{margin-bottom:12px;}
-  details.setup summary{cursor:pointer;font-weight:600;font-size:13.5px;padding:10px 12px;
-    background:#fff;border:1px solid var(--border);border-radius:12px;list-style:none;}
+
+  details.setup summary{cursor:pointer;font-weight:600;font-size:13.5px;list-style:none;color:var(--accent);}
   details.setup summary::-webkit-details-marker{display:none;}
-  details.setup[open] summary{border-bottom-left-radius:0;border-bottom-right-radius:0;}
-  .setup-body{border:1px solid var(--border);border-top:0;border-radius:0 0 12px 12px;padding:12px;background:#fff;}
-  .badge{font-size:11px;padding:2px 8px;border-radius:6px;background:var(--chip);color:var(--muted);}
+  details.setup[open] summary{margin-bottom:10px;}
+
+  /* floating CTA */
+  .fab{position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(18px + env(safe-area-inset-bottom));z-index:30;
+    background:var(--accent);color:#fff;border:none;border-radius:30px;
+    padding:14px 22px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;
+    box-shadow:0 6px 18px rgba(37,99,235,.35);display:flex;align-items:center;gap:8px;}
+  .fab .plus{font-size:20px;line-height:1;}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(17,24,39,.45);z-index:40;display:none;
+    align-items:flex-end;justify-content:center;}
+  .overlay.open{display:flex;}
+  .sheet{background:#fff;width:100%;max-width:680px;border-radius:18px 18px 0 0;
+    padding:16px 16px calc(20px + env(safe-area-inset-bottom));max-height:92vh;overflow:auto;
+    animation:slideup .2s ease;}
+  @keyframes slideup{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+  .sheet h3{margin:0 0 4px;font-size:16px;}
+  .sheet .note{color:var(--muted);font-size:12px;margin-bottom:12px;}
+  .grabber{width:40px;height:4px;border-radius:4px;background:#d1d5db;margin:0 auto 12px;}
+
+  /* toast */
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;z-index:60;
+    background:#111827;color:#fff;padding:10px 16px;border-radius:10px;font-size:13.5px;
+    opacity:0;pointer-events:none;transition:opacity .2s;}
+  .toast.show{opacity:1;}
+
+  .hidden{display:none !important;}
   a{color:var(--accent);}
 </style>
 </head>
@@ -81,35 +125,132 @@
   <header class="app">
     <div>
       <h1>Food Plan Tracker</h1>
-      <div class="sub" id="sub">ตั้งค่าแหล่งข้อมูลด้านล่างเพื่อเริ่ม</div>
+      <div class="sub" id="sub">—</div>
     </div>
     <button class="iconbtn primary" id="reloadBtn">รีเฟรช</button>
   </header>
 
+  <div class="tabbar">
+    <div class="tab active" data-view="home" id="tabHome">หน้าแรก</div>
+    <div class="tab" data-view="profile" id="tabProfile">โปรไฟล์</div>
+  </div>
+
   <div id="errbox"></div>
 
-  <!-- Data source setup -->
-  <details class="setup" id="setup">
-    <summary>⚙️ ตั้งค่าแหล่งข้อมูล (ลิงก์ Google Sheet)</summary>
-    <div class="setup-body">
-      <label class="fld">ลิงก์ CSV ที่เผยแพร่ (Publish to web → CSV)
-        <input type="text" id="csvUrl" placeholder="https://docs.google.com/spreadsheets/d/e/..../pub?gid=0&single=true&output=csv">
+  <!-- ============ HOME ============ -->
+  <section id="view-home">
+
+    <div class="card">
+      <h2 id="daysum-h">สรุปวันนี้</h2>
+      <label class="fld" style="margin-bottom:10px">เลือกวัน
+        <select id="daySel"></select>
       </label>
-      <div class="btnrow">
-        <button class="iconbtn primary" id="saveUrl">บันทึก & โหลด</button>
-        <button class="iconbtn" id="clearUrl">ล้าง</button>
+      <div class="cards-row" id="statcards"></div>
+    </div>
+
+    <div class="card">
+      <h2>สรุปต่อมื้อ <span class="note" id="mealDateLbl"></span></h2>
+      <div id="mealgrid"></div>
+    </div>
+
+    <div class="card">
+      <h2>แนวโน้มแคลอรี่ vs เป้าหมาย</h2>
+      <canvas id="calChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>แนวโน้มสารอาหาร (g)</h2>
+      <canvas id="macroChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>ตารางรายวัน + Sufficiency</h2>
+      <label class="fld" style="margin-bottom:10px">มุมมอง
+        <select id="rangeSel">
+          <option value="entered">เฉพาะวันที่มีข้อมูล</option>
+          <option value="all">ทุกวันในแผน</option>
+        </select>
+      </label>
+      <div class="tablewrap">
+        <table id="dailyTable">
+          <thead><tr>
+            <th class="date">Date</th>
+            <th>Cal</th><th>Cal Suf</th>
+            <th>Protein</th><th>Prot Suf</th>
+            <th>Fats</th><th>Fats Suf</th>
+            <th>Carb</th><th>Carb Suf</th>
+          </tr></thead><tbody></tbody>
+        </table>
       </div>
-      <div class="footnote">
-        วิธีรับลิงก์: เปิด Google Sheet → <b>File → Share → Publish to web</b> →
-        เลือกชีต <b>Raw</b> และรูปแบบ <b>Comma-separated values (.csv)</b> → Publish → ก๊อปลิงก์มาวาง<br>
-        ⚠️ ลิงก์ที่เผยแพร่ใครมีลิงก์ก็ดูได้ ใช้กับข้อมูลที่ไม่ลับเท่านั้น
+      <div class="legend">
+        <span>Suf = ที่กินจริง − เป้าหมาย</span>
+        <span><span class="dot ok"></span>พอดี</span>
+        <span><span class="dot over"></span>เกิน (มากไป)</span>
+        <span><span class="dot under"></span>ขาด (ยังไม่ครบ)</span>
       </div>
     </div>
-  </details>
 
-  <!-- Local quick add (top) -->
-  <div class="card">
-    <h2>เพิ่มมื้อ <span class="note">— เก็บในเครื่องนี้ (ไม่เขียนกลับเข้าชีต)</span></h2>
+  </section>
+
+  <!-- ============ PROFILE ============ -->
+  <section id="view-profile" class="hidden">
+
+    <div class="card">
+      <details class="setup" id="profileBox">
+        <summary>👤 ทีม / ผู้ใช้ & เป้าหมายต่อวัน — แก้ไขได้</summary>
+        <label class="fld" style="margin-bottom:12px">ทีม / ผู้ใช้
+          <select class="team" id="teamSel"></select>
+        </label>
+        <div class="grid4">
+          <label class="fld">Cal (kcal)<input type="number" inputmode="decimal" id="t_cal"></label>
+          <label class="fld">Protein (g)<input type="number" inputmode="decimal" id="t_pro"></label>
+          <label class="fld">Fats (g)<input type="number" inputmode="decimal" id="t_fat"></label>
+          <label class="fld">Carb (g)<input type="number" inputmode="decimal" id="t_car"></label>
+        </div>
+        <div class="btnrow">
+          <button class="iconbtn primary" id="saveProfile">บันทึกโปรไฟล์</button>
+          <button class="iconbtn" id="resetTarget">คืนค่าเริ่มต้น</button>
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
+      <details class="setup" id="setup">
+        <summary>⚙️ ตั้งค่าแหล่งข้อมูล (ลิงก์ Google Sheet)</summary>
+        <label class="fld">ลิงก์ CSV ที่เผยแพร่ (Publish to web → CSV)
+          <input type="text" id="csvUrl" placeholder="https://docs.google.com/spreadsheets/d/e/..../pub?gid=0&single=true&output=csv">
+        </label>
+        <div class="btnrow">
+          <button class="iconbtn primary" id="saveUrl">บันทึก & โหลด</button>
+          <button class="iconbtn" id="clearUrl">ล้าง</button>
+        </div>
+        <div class="footnote">
+          วิธีรับลิงก์: เปิด Google Sheet → <b>File → Share → Publish to web</b> →
+          เลือกชีต <b>Raw</b> และรูปแบบ <b>Comma-separated values (.csv)</b> → Publish → ก๊อปลิงก์มาวาง<br>
+          ⚠️ ลิงก์ที่เผยแพร่ใครมีลิงก์ก็ดูได้ ใช้กับข้อมูลที่ไม่ลับเท่านั้น
+        </div>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>ข้อมูลในเครื่อง</h2>
+      <div class="footnote" id="localNote" style="margin:0 0 10px"></div>
+      <button class="iconbtn" id="clearLocal">ล้างมื้อที่กรอกในเครื่อง (local) ทั้งหมด</button>
+    </div>
+
+  </section>
+
+</div>
+
+<!-- floating CTA -->
+<button class="fab" id="fab"><span class="plus">+</span> เพิ่มมื้อ</button>
+
+<!-- add-meal modal -->
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <div class="grabber"></div>
+    <h3>เพิ่มมื้อ</h3>
+    <div class="note">เก็บในเครื่องนี้ (ไม่เขียนกลับเข้าชีต)</div>
     <div class="grid2" style="margin-bottom:10px">
       <label class="fld">วันที่<input type="date" id="a_date"></label>
       <label class="fld">มื้อ<select id="a_meal"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select></label>
@@ -121,286 +262,234 @@
       <label class="fld">Carb<input type="number" inputmode="decimal" id="a_car"></label>
     </div>
     <div class="btnrow">
+      <button class="iconbtn" id="cancelAdd">ยกเลิก</button>
       <button class="iconbtn primary" id="addBtn">เพิ่มมื้อ</button>
-      <button class="iconbtn" id="clearLocal">ล้าง local</button>
     </div>
-    <div class="footnote" id="localNote"></div>
   </div>
-
-  <!-- Team + targets -->
-  <div class="card">
-    <h2>ทีม / ผู้ใช้ & เป้าหมายต่อวัน <span class="note">— แก้ไขได้</span></h2>
-    <label class="fld" style="margin-bottom:10px">เลือกทีม<select class="team" id="teamSel"></select></label>
-    <div class="grid4">
-      <label class="fld">Cal (kcal)<input type="number" inputmode="decimal" id="t_cal"></label>
-      <label class="fld">Protein (g)<input type="number" inputmode="decimal" id="t_pro"></label>
-      <label class="fld">Fats (g)<input type="number" inputmode="decimal" id="t_fat"></label>
-      <label class="fld">Carb (g)<input type="number" inputmode="decimal" id="t_car"></label>
-    </div>
-    <div class="btnrow"><button class="iconbtn" id="resetTarget">คืนค่าเริ่มต้น</button></div>
-  </div>
-
-  <!-- Day summary -->
-  <div class="card">
-    <h2 id="daysum-h">สรุปรายวัน</h2>
-    <label class="fld" style="margin-bottom:10px">เลือกวัน
-      <select id="daySel"></select>
-    </label>
-    <div class="cards-row" id="statcards"></div>
-  </div>
-
-  <!-- Per-meal -->
-  <div class="card">
-    <h2>สรุปต่อมื้อ <span class="note" id="mealDateLbl"></span></h2>
-    <div id="mealgrid"></div>
-  </div>
-
-  <!-- Charts -->
-  <div class="card">
-    <h2>แนวโน้มแคลอรี่ vs เป้าหมาย</h2>
-    <canvas id="calChart"></canvas>
-  </div>
-  <div class="card">
-    <h2>แนวโน้มสารอาหาร (g)</h2>
-    <canvas id="macroChart"></canvas>
-  </div>
-
-  <!-- Daily table -->
-  <div class="card">
-    <h2>ตารางรายวัน + Sufficiency</h2>
-    <label class="fld" style="margin-bottom:10px">มุมมอง
-      <select id="rangeSel">
-        <option value="entered">เฉพาะวันที่มีข้อมูล</option>
-        <option value="all">ทุกวันในแผน</option>
-      </select>
-    </label>
-    <div class="tablewrap">
-      <table id="dailyTable">
-        <thead><tr>
-          <th class="date">Date</th>
-          <th>Cal</th><th>Cal Suf</th>
-          <th>Protein</th><th>Prot Suf</th>
-          <th>Fats</th><th>Fats Suf</th>
-          <th>Carb</th><th>Carb Suf</th>
-        </tr></thead><tbody></tbody>
-      </table>
-    </div>
-    <div class="footnote">Suf = ที่กินจริง − เป้าหมาย • เขียว = ถึง/เกินเป้า, แดง = ยังขาด</div>
-  </div>
-
-  <div class="footnote" style="text-align:center;padding:8px 0 20px">
-    เพิ่มลงหน้าจอหลัก: Safari/Chrome → เมนูแชร์ → “เพิ่มไปยังหน้าจอโฮม”
-  </div>
-
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 const MONTHS={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
 const MNAMES=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const DEFAULT_TARGETS={ TitchJane:{cal:1500,pro:110,fat:50,car:150}, DuckTae:{cal:2050,pro:155,fat:68,car:205} };
+const DEFAULT_TARGETS={ TitchJane:{cal:1290,pro:110,fat:40,car:130}, DuckTae:{cal:2050,pro:155,fat:68,car:205} };
 const FALLBACK_TARGET={cal:2000,pro:120,fat:60,car:200};
+const TODAY_KEY=(d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"))(new Date());
 
 let RAW=[], TEAMS=[], calChart, macroChart;
-let state={team:null, day:null, range:"entered"};
+let state={team:null, day:TODAY_KEY, range:"entered", view:"home"};
 
 /* storage */
 const LS=localStorage;
-function getUrl(){ return LS.getItem("fp_csvurl")||""; }
-function setUrl(u){ LS.setItem("fp_csvurl",u); }
-function targetsStore(){ try{return JSON.parse(LS.getItem("fp_targets")||"{}");}catch(e){return{};} }
-function saveTargets(o){ LS.setItem("fp_targets",JSON.stringify(o)); }
-function getTarget(t){ const s=targetsStore(); return s[t]||Object.assign({},DEFAULT_TARGETS[t]||FALLBACK_TARGET); }
-function setTarget(t,v){ const s=targetsStore(); s[t]=v; saveTargets(s); }
-function localEntries(){ try{return JSON.parse(LS.getItem("fp_local")||"[]");}catch(e){return[];} }
-function saveLocal(a){ LS.setItem("fp_local",JSON.stringify(a)); }
+const getUrl=()=>LS.getItem("fp_csvurl")||"";
+const setUrl=u=>LS.setItem("fp_csvurl",u);
+const targetsStore=()=>{try{return JSON.parse(LS.getItem("fp_targets")||"{}");}catch(e){return{};}};
+const saveTargets=o=>LS.setItem("fp_targets",JSON.stringify(o));
+const getTarget=t=>{const s=targetsStore();return s[t]||Object.assign({},DEFAULT_TARGETS[t]||FALLBACK_TARGET);};
+const setTarget=(t,v)=>{const s=targetsStore();s[t]=v;saveTargets(s);};
+const localEntries=()=>{try{return JSON.parse(LS.getItem("fp_local")||"[]");}catch(e){return[];}};
+const saveLocal=a=>LS.setItem("fp_local",JSON.stringify(a));
 
 /* helpers */
-function num(v){ if(v==null)return 0; const n=parseFloat(String(v).replace(/[, ]/g,"").replace(/\\/g,"")); return isNaN(n)?0:n; }
-function parseDate(s){ const m=String(s).trim().match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/); if(!m)return null; const mo=MONTHS[m[2]]; if(mo==null)return null; return new Date(+m[3],mo,+m[1]); }
-function dateKey(dt){ return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0"); }
-function dateLabel(dt){ return String(dt.getDate()).padStart(2,"0")+" "+MNAMES[dt.getMonth()]+" "+dt.getFullYear(); }
-function normMeal(m){ const x=String(m||"").trim().toLowerCase(); if(x.startsWith("break"))return"Breakfast"; if(x.startsWith("lun"))return"Lunch"; if(x.startsWith("din"))return"Dinner"; if(x.startsWith("sna"))return"Snack"; return m?m.trim():""; }
-function fmt(n){ return (Math.round(n*10)/10).toLocaleString("en-US"); }
-function sufClass(v){ return v>=0?"p":"n"; }
-function sufStr(v){ return (v>=0?"+":"")+fmt(v); }
+const $=id=>document.getElementById(id);
+function num(v){if(v==null)return 0;const n=parseFloat(String(v).replace(/[, ]/g,"").replace(/\\/g,""));return isNaN(n)?0:n;}
+function parseDate(s){const m=String(s).trim().match(/^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/);if(!m)return null;const mo=MONTHS[m[2]];if(mo==null)return null;return new Date(+m[3],mo,+m[1]);}
+function dateKey(dt){return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");}
+function dateLabel(dt){return String(dt.getDate()).padStart(2,"0")+" "+MNAMES[dt.getMonth()]+" "+dt.getFullYear();}
+function keyToLabel(k){const p=k.split("-");return dateLabel(new Date(+p[0],+p[1]-1,+p[2]));}
+function normMeal(m){const x=String(m||"").trim().toLowerCase();if(x.startsWith("break"))return"Breakfast";if(x.startsWith("lun"))return"Lunch";if(x.startsWith("din"))return"Dinner";if(x.startsWith("sna"))return"Snack";return m?m.trim():"";}
+function fmt(n){return (Math.round(n*10)/10).toLocaleString("en-US");}
+const sufStr=v=>(v>=0?"+":"")+fmt(v);
+/* health-based sufficiency status: ok=within tolerance (green), over=red (too much), under=yellow (not complete) */
+const TOL={cal:.10,pro:.10,fat:.15,car:.15};
+function sufStatus(key,val,t){if(t<=0)return"ok";const dev=(val-t)/t,tol=TOL[key]||.10;if(key==="pro")return val>=t*(1-tol)?"ok":"under";if(dev>tol)return"over";if(dev<-tol)return"under";return"ok";}
+const STAT_LABEL={ok:"พอดี",over:"เกิน",under:"ขาด"};
+const STAT_COLOR={ok:"var(--good)",over:"var(--bad)",under:"#f5c518"};
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),1800);}
 
-/* CSV parser (handles quoted fields) */
-function parseCSV(text){
-  const rows=[]; let row=[], cur="", q=false;
-  for(let i=0;i<text.length;i++){
-    const c=text[i];
-    if(q){
-      if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; }
-      else cur+=c;
-    } else {
-      if(c==='"') q=true;
-      else if(c===","){ row.push(cur); cur=""; }
-      else if(c==="\n"){ row.push(cur); rows.push(row); row=[]; cur=""; }
-      else if(c==="\r"){ /* skip */ }
-      else cur+=c;
-    }
-  }
-  if(cur.length||row.length){ row.push(cur); rows.push(row); }
-  return rows;
-}
+/* CSV */
+function parseCSV(text){const rows=[];let row=[],cur="",q=false;for(let i=0;i<text.length;i++){const c=text[i];if(q){if(c==='"'){if(text[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}else{if(c==='"')q=true;else if(c===","){row.push(cur);cur="";}else if(c==="\n"){row.push(cur);rows.push(row);row=[];cur="";}else if(c==="\r"){}else cur+=c;}}if(cur.length||row.length){row.push(cur);rows.push(row);}return rows;}
 function parseRawCSV(text){
-  const rows=parseCSV(text).filter(r=>r.length && r.some(c=>c.trim()!==""));
-  if(!rows.length) return [];
-  // find header row
-  let hi=rows.findIndex(r=>{ const lc=r.map(c=>c.trim().toLowerCase()); return lc.includes("meal")&&lc.includes("date")&&(lc.includes("calories")); });
-  if(hi<0) hi=0;
-  const head=rows[hi].map(c=>c.trim().toLowerCase());
-  const ci=n=>head.indexOf(n);
-  const cDate=ci("date"), cTeam=ci("team"), cMeal=ci("meal"),
-        cCal=ci("calories"), cPro=ci("protein"), cFat=ci("fats"),
-        cCar=ci("carbs")>=0?ci("carbs"):ci("carb");
+  const rows=parseCSV(text).filter(r=>r.length&&r.some(c=>c.trim()!==""));
+  if(!rows.length)return[];
+  let hi=rows.findIndex(r=>{const lc=r.map(c=>c.trim().toLowerCase());return lc.includes("meal")&&lc.includes("date")&&lc.includes("calories");});
+  if(hi<0)hi=0;
+  const head=rows[hi].map(c=>c.trim().toLowerCase());const ci=n=>head.indexOf(n);
+  const cDate=ci("date"),cTeam=ci("team"),cMeal=ci("meal"),cCal=ci("calories"),cPro=ci("protein"),cFat=ci("fats"),cCar=ci("carbs")>=0?ci("carbs"):ci("carb");
   const out=[];
-  for(let i=hi+1;i<rows.length;i++){
-    const r=rows[i];
-    const dt=parseDate(r[cDate]);
-    if(!dt) continue;
-    out.push({ dateKey:dateKey(dt), dateObj:dt, dateLabel:dateLabel(dt),
-      team:(r[cTeam]||"").trim()||"Unknown", meal:normMeal(r[cMeal]),
-      cal:num(r[cCal]), pro:num(r[cPro]), fat:num(r[cFat]), car:num(r[cCar]), source:"sheet" });
-  }
+  for(let i=hi+1;i<rows.length;i++){const r=rows[i];const dt=parseDate(r[cDate]);if(!dt)continue;
+    out.push({dateKey:dateKey(dt),dateObj:dt,dateLabel:dateLabel(dt),team:(r[cTeam]||"").trim()||"Unknown",
+      meal:normMeal(r[cMeal]),cal:num(r[cCal]),pro:num(r[cPro]),fat:num(r[cFat]),car:num(r[cCar]),source:"sheet"});}
   return out;
 }
 
 /* aggregation */
 function recordsFor(team){
   const sheet=RAW.filter(r=>r.team===team);
-  const loc=localEntries().filter(r=>r.team===team).map(r=>{ const dt=new Date(r.dateKey+"T00:00:00");
+  const loc=localEntries().filter(r=>r.team===team).map(r=>{const dt=new Date(r.dateKey+"T00:00:00");
     return {dateKey:r.dateKey,dateObj:dt,dateLabel:dateLabel(dt),team:r.team,meal:normMeal(r.meal),
-      cal:num(r.cal),pro:num(r.pro),fat:num(r.fat),car:num(r.car),source:"local"}; });
+      cal:num(r.cal),pro:num(r.pro),fat:num(r.fat),car:num(r.car),source:"local"};});
   return sheet.concat(loc);
 }
 function byDay(records){
   const map=new Map();
   for(const r of records){
-    if(!map.has(r.dateKey)) map.set(r.dateKey,{dateKey:r.dateKey,dateObj:r.dateObj,dateLabel:r.dateLabel,cal:0,pro:0,fat:0,car:0,meals:{}});
-    const d=map.get(r.dateKey); d.cal+=r.cal;d.pro+=r.pro;d.fat+=r.fat;d.car+=r.car;
-    if(r.meal){ if(!d.meals[r.meal])d.meals[r.meal]={cal:0,pro:0,fat:0,car:0}; const m=d.meals[r.meal]; m.cal+=r.cal;m.pro+=r.pro;m.fat+=r.fat;m.car+=r.car; }
+    if(!map.has(r.dateKey))map.set(r.dateKey,{dateKey:r.dateKey,dateObj:r.dateObj,dateLabel:r.dateLabel,cal:0,pro:0,fat:0,car:0,meals:{}});
+    const d=map.get(r.dateKey);d.cal+=r.cal;d.pro+=r.pro;d.fat+=r.fat;d.car+=r.car;
+    if(r.meal){if(!d.meals[r.meal])d.meals[r.meal]={cal:0,pro:0,fat:0,car:0};const m=d.meals[r.meal];m.cal+=r.cal;m.pro+=r.pro;m.fat+=r.fat;m.car+=r.car;}
   }
   return Array.from(map.values()).sort((a,b)=>a.dateObj-b.dateObj);
 }
 
-/* targets UI */
-function renderTargets(){ const t=getTarget(state.team); t_cal.value=t.cal;t_pro.value=t.pro;t_fat.value=t.fat;t_car.value=t.car; }
-function currentTarget(){ return {cal:num(t_cal.value),pro:num(t_pro.value),fat:num(t_fat.value),car:num(t_car.value)}; }
+/* profile inputs */
+function loadProfileInputs(){const t=getTarget(state.team);t_cal.value=t.cal;t_pro.value=t.pro;t_fat.value=t.fat;t_car.value=t.car;}
+const inputTarget=()=>({cal:num(t_cal.value),pro:num(t_pro.value),fat:num(t_fat.value),car:num(t_car.value)});
 
-/* render */
+/* view switch */
+function showView(v){
+  state.view=v;
+  $("view-home").classList.toggle("hidden",v!=="home");
+  $("view-profile").classList.toggle("hidden",v!=="profile");
+  $("tabHome").classList.toggle("active",v==="home");
+  $("tabProfile").classList.toggle("active",v==="profile");
+  if(v==="profile")loadProfileInputs();
+  if(v==="home"){if(calChart)calChart.resize();if(macroChart)macroChart.resize();}
+  window.scrollTo(0,0);
+}
+
+/* render home */
 function render(){
-  if(!state.team){ return; }
+  if(!state.team)return;
   const recs=recordsFor(state.team);
   const days=byDay(recs);
   const entered=days.filter(d=>d.cal||d.pro||d.fat||d.car);
-  const tgt=currentTarget();
+  const tgt=getTarget(state.team);
 
-  const pool=entered.length?entered:days;
-  if(!state.day||!pool.find(d=>d.dateKey===state.day)) state.day=pool.length?pool[pool.length-1].dateKey:null;
-  daySel.innerHTML=pool.map(d=>`<option value="${d.dateKey}" ${d.dateKey===state.day?"selected":""}>${d.dateLabel}</option>`).join("");
+  const keys=new Set(days.map(d=>d.dateKey)); keys.add(TODAY_KEY);
+  const pool=Array.from(keys).sort();
+  if(!pool.includes(state.day))state.day=TODAY_KEY;
+  $("daySel").innerHTML=pool.map(k=>`<option value="${k}" ${k===state.day?"selected":""}>${keyToLabel(k)}${k===TODAY_KEY?" (วันนี้)":""}</option>`).join("");
 
-  const day=days.find(d=>d.dateKey===state.day)||{cal:0,pro:0,fat:0,car:0,meals:{}};
-  document.getElementById("daysum-h").textContent="สรุปวัน "+(day.dateLabel||"-");
-  const defs=[{k:"Calories",u:"kcal",val:day.cal,t:tgt.cal},{k:"Protein",u:"g",val:day.pro,t:tgt.pro},{k:"Fats",u:"g",val:day.fat,t:tgt.fat},{k:"Carb",u:"g",val:day.car,t:tgt.car}];
-  statcards.innerHTML=defs.map(c=>{ const suf=c.val-c.t; const pct=c.t>0?Math.min(100,Math.round(c.val/c.t*100)):0; const col=suf>=0?"var(--good)":"var(--accent)";
+  const day=days.find(d=>d.dateKey===state.day)||{dateKey:state.day,dateLabel:keyToLabel(state.day),cal:0,pro:0,fat:0,car:0,meals:{}};
+  $("daysum-h").textContent="สรุปวัน "+day.dateLabel+(state.day===TODAY_KEY?" (วันนี้)":"");
+
+  const defs=[{key:"cal",k:"Calories",u:"kcal",val:day.cal,t:tgt.cal},{key:"pro",k:"Protein",u:"g",val:day.pro,t:tgt.pro},{key:"fat",k:"Fats",u:"g",val:day.fat,t:tgt.fat},{key:"car",k:"Carb",u:"g",val:day.car,t:tgt.car}];
+  $("statcards").innerHTML=defs.map(c=>{const suf=c.val-c.t;const st=sufStatus(c.key,c.val,c.t);const pct=c.t>0?Math.min(100,Math.round(c.val/c.t*100)):0;
     return `<div class="stat"><div class="k">${c.k} <span class="muted">/ ${fmt(c.t)}</span></div><div class="v">${fmt(c.val)}</div>
-      <div class="bar"><span style="width:${pct}%;background:${col}"></span></div>
-      <div class="suf ${sufClass(suf)}">${suf>=0?"เกิน ":"ขาด "}${sufStr(suf)}</div></div>`; }).join("");
+      <div class="bar"><span style="width:${pct}%;background:${STAT_COLOR[st]}"></span></div>
+      <div class="suf cl-${st}">${STAT_LABEL[st]} ${sufStr(suf)}</div></div>`;}).join("");
 
   const order=["Breakfast","Lunch","Dinner","Snack"];
   const present=order.filter(m=>day.meals&&day.meals[m]).concat(Object.keys(day.meals||{}).filter(m=>!order.includes(m)));
-  document.getElementById("mealDateLbl").textContent=day.dateLabel?"— "+day.dateLabel:"";
-  mealgrid.innerHTML = present.length? present.map(m=>{ const v=day.meals[m];
+  $("mealDateLbl").textContent="— "+day.dateLabel;
+  $("mealgrid").innerHTML=present.length?present.map(m=>{const v=day.meals[m];
     return `<div class="meal"><div class="mh"><span>${m}</span><span class="cal">${fmt(v.cal)} kcal</span></div>
-      <div class="macros"><span>P <b>${fmt(v.pro)}</b></span><span>F <b>${fmt(v.fat)}</b></span><span>C <b>${fmt(v.car)}</b></span></div></div>`; }).join("")
-    : `<div class="muted">ยังไม่มีข้อมูลมื้อในวันนี้</div>`;
+      <div class="macros"><span>P <b>${fmt(v.pro)}</b></span><span>F <b>${fmt(v.fat)}</b></span><span>C <b>${fmt(v.car)}</b></span></div></div>`;}).join("")
+    :`<div class="muted">ยังไม่มีข้อมูลมื้อในวันนี้ — กดปุ่ม “+ เพิ่มมื้อ” ด้านล่าง</div>`;
 
   const rows=(state.range==="all"?days:entered);
   const tb=document.querySelector("#dailyTable tbody");
-  tb.innerHTML = rows.length? rows.map(d=>{ const cs=d.cal-tgt.cal,ps=d.pro-tgt.pro,fs=d.fat-tgt.fat,rs=d.car-tgt.car;
-    return `<tr><td class="date">${d.dateLabel}</td>
-      <td>${fmt(d.cal)}</td><td class="sufcell ${sufClass(cs)}">${sufStr(cs)}</td>
-      <td>${fmt(d.pro)}</td><td class="sufcell ${sufClass(ps)}">${sufStr(ps)}</td>
-      <td>${fmt(d.fat)}</td><td class="sufcell ${sufClass(fs)}">${sufStr(fs)}</td>
-      <td>${fmt(d.car)}</td><td class="sufcell ${sufClass(rs)}">${sufStr(rs)}</td></tr>`; }).join("")
-    : `<tr><td colspan="9" class="muted">ยังไม่มีข้อมูล</td></tr>`;
+  tb.innerHTML=rows.length?rows.map(d=>{const cs=d.cal-tgt.cal,ps=d.pro-tgt.pro,fs=d.fat-tgt.fat,rs=d.car-tgt.car;
+    const stc=sufStatus("cal",d.cal,tgt.cal),stp=sufStatus("pro",d.pro,tgt.pro),stf=sufStatus("fat",d.fat,tgt.fat),str=sufStatus("car",d.car,tgt.car);
+    return `<tr class="${d.dateKey===TODAY_KEY?"today-row":""}"><td class="date">${d.dateLabel}</td>
+      <td>${fmt(d.cal)}</td><td class="sufcell cl-${stc}">${sufStr(cs)}</td>
+      <td>${fmt(d.pro)}</td><td class="sufcell cl-${stp}">${sufStr(ps)}</td>
+      <td>${fmt(d.fat)}</td><td class="sufcell cl-${stf}">${sufStr(fs)}</td>
+      <td>${fmt(d.car)}</td><td class="sufcell cl-${str}">${sufStr(rs)}</td></tr>`;}).join("")
+    :`<tr><td colspan="9" class="muted">ยังไม่มีข้อมูล</td></tr>`;
 
   renderCharts(entered.length?entered:days.slice(0,30),tgt);
+
   const lc=localEntries().filter(r=>r.team===state.team).length;
-  localNote.textContent=lc?(lc+" รายการ local สำหรับทีมนี้ (รวมในการคำนวณแล้ว)"):"ยังไม่มีรายการ local";
+  $("localNote").textContent=lc?(lc+" รายการ local สำหรับทีมนี้ (รวมในการคำนวณแล้ว)"):"ยังไม่มีรายการ local";
 }
 function renderCharts(days,tgt){
   const labels=days.map(d=>d.dateLabel.replace(/ \d{4}$/,""));
   if(calChart)calChart.destroy();
-  calChart=new Chart(calChart_ctx(),{type:"bar",data:{labels,datasets:[
-    {label:"Calories",data:days.map(d=>d.cal),backgroundColor:"#93c5fd",borderColor:"#2563eb",borderWidth:1},
-    {label:"เป้าหมาย",type:"line",data:days.map(()=>tgt.cal),borderColor:"#dc2626",borderWidth:2,pointRadius:0,borderDash:[5,4]}]},
+  calChart=new Chart($("calChart"),{type:"line",data:{labels,datasets:[
+    {label:"Calories",data:days.map(d=>d.cal),fill:true,backgroundColor:"rgba(37,99,235,.15)",borderColor:"#2563eb",borderWidth:2,tension:.3,pointRadius:2},
+    {label:"เป้าหมาย",data:days.map(()=>tgt.cal),fill:false,borderColor:"#dc2626",borderWidth:2,pointRadius:0,borderDash:[5,4]}]},
     options:{responsive:true,plugins:{legend:{labels:{boxWidth:12}}},scales:{y:{beginAtZero:true}}}});
   if(macroChart)macroChart.destroy();
-  macroChart=new Chart(macroChart_ctx(),{type:"line",data:{labels,datasets:[
+  macroChart=new Chart($("macroChart"),{type:"line",data:{labels,datasets:[
     {label:"Protein",data:days.map(d=>d.pro),borderColor:"#16a34a",borderWidth:2,tension:.25,pointRadius:2},
     {label:"Fats",data:days.map(d=>d.fat),borderColor:"#d97706",borderWidth:2,tension:.25,pointRadius:2},
     {label:"Carb",data:days.map(d=>d.car),borderColor:"#7c3aed",borderWidth:2,tension:.25,pointRadius:2}]},
     options:{responsive:true,plugins:{legend:{labels:{boxWidth:12}}},scales:{y:{beginAtZero:true}}}});
 }
-function calChart_ctx(){ return document.getElementById("calChart"); }
-function macroChart_ctx(){ return document.getElementById("macroChart"); }
 
-/* build team list & boot render */
+/* teams */
 function buildTeams(){
   const set=new Set(RAW.map(r=>r.team));
   localEntries().forEach(r=>set.add(r.team));
   Object.keys(DEFAULT_TARGETS).forEach(t=>set.add(t));
   TEAMS=Array.from(set);
-  if(!state.team||!TEAMS.includes(state.team)) state.team=TEAMS[0];
-  teamSel.innerHTML=TEAMS.map(t=>`<option ${t===state.team?"selected":""}>${t}</option>`).join("");
-  renderTargets();
+  if(!state.team||!TEAMS.includes(state.team))state.team=TEAMS[0];
+  $("teamSel").innerHTML=TEAMS.map(t=>`<option ${t===state.team?"selected":""}>${t}</option>`).join("");
 }
 
-/* load from CSV */
+/* load */
 async function load(){
-  errbox.innerHTML="";
+  $("errbox").innerHTML="";
   const url=getUrl();
-  if(!url){ document.getElementById("sub").textContent="ยังไม่ได้ตั้งค่าแหล่งข้อมูล"; document.getElementById("setup").open=true; buildTeams(); render(); return; }
-  document.getElementById("sub").textContent="กำลังโหลด…";
+  if(!url){$("sub").textContent="ยังไม่ได้เชื่อมชีต — ไปที่โปรไฟล์ ▸ ตั้งค่าแหล่งข้อมูล";buildTeams();render();return;}
+  $("sub").textContent="กำลังโหลด…";
   try{
     const res=await fetch(url,{cache:"no-store"});
-    if(!res.ok) throw new Error("HTTP "+res.status);
+    if(!res.ok)throw new Error("HTTP "+res.status);
     const text=await res.text();
     RAW=parseRawCSV(text);
-    if(!RAW.length) throw new Error("ไม่พบแถวข้อมูลที่อ่านได้ — ตรวจว่าเผยแพร่ชีต Raw เป็น CSV");
+    if(!RAW.length)throw new Error("ไม่พบแถวข้อมูล — ตรวจว่าเผยแพร่ชีต Raw เป็น CSV");
     buildTeams();
     const entered=RAW.filter(r=>r.cal||r.pro||r.fat||r.car).length;
-    const span=RAW.length?RAW[0].dateLabel+" – "+RAW[RAW.length-1].dateLabel:"—";
-    document.getElementById("sub").textContent=`อ่าน ${RAW.length} แถว • ${span} • มีข้อมูล ${entered} รายการ`;
+    $("sub").textContent=`${state.team} • อ่าน ${RAW.length} แถว • มีข้อมูล ${entered} วัน`;
     render();
   }catch(e){
-    RAW=[]; buildTeams(); render();
-    errbox.innerHTML=`<div class="err">โหลดข้อมูลไม่สำเร็จ: ${String(e&&e.message||e)}<br>ตรวจลิงก์ Publish to web (CSV) ของชีต Raw แล้วลองใหม่</div>`;
-    document.getElementById("setup").open=true;
+    RAW=[];buildTeams();render();
+    $("errbox").innerHTML=`<div class="err">โหลดข้อมูลไม่สำเร็จ: ${String(e&&e.message||e)}<br>ตรวจลิงก์ Publish to web (CSV) ของชีต Raw แล้วลองใหม่</div>`;
+    showView("profile");$("setup").open=true;
   }
 }
 
 /* events */
-teamSel.addEventListener("change",e=>{ state.team=e.target.value; state.day=null; renderTargets(); render(); });
-rangeSel.addEventListener("change",e=>{ state.range=e.target.value; render(); });
-daySel.addEventListener("change",e=>{ state.day=e.target.value; render(); });
-["t_cal","t_pro","t_fat","t_car"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{ setTarget(state.team,currentTarget()); render(); }));
-document.getElementById("resetTarget").addEventListener("click",()=>{ setTarget(state.team,Object.assign({},DEFAULT_TARGETS[state.team]||FALLBACK_TARGET)); renderTargets(); render(); });
-document.getElementById("reloadBtn").addEventListener("click",load);
-document.getElementById("saveUrl").addEventListener("click",()=>{ setUrl(document.getElementById("csvUrl").value.trim()); document.getElementById("setup").open=false; load(); });
-document.getElementById("clearUrl").addEventListener("click",()=>{ document.getElementById("csvUrl").value=""; setUrl(""); });
-document.getElementById("addBtn").addEventListener("click",()=>{
-  const dv=document.getElementById("a_date").value; if(!dv){ alert("เลือกวันที่ก่อน"); return; }
-  const arr=localEntries(); arr.push({dateKey:dv,team:state.team,meal:document.getElementById("a_meal").value,
-    cal:num(a_cal.value),pro:num(a_pro.value),fat:num(a_fat.value),car:num(a_car.value)});
-  saveLocal(arr); a_cal.value=a_pro.value=a_fat.value=a_car.value=""; render();
+$("tabHome").addEventListener("click",()=>showView("home"));
+$("tabProfile").addEventListener("click",()=>showView("profile"));
+$("teamSel").addEventListener("change",e=>{state.team=e.target.value;state.day=TODAY_KEY;loadProfileInputs();render();$("sub").textContent=state.team+(RAW.length?` • อ่าน ${RAW.length} แถว`:"");});
+$("rangeSel").addEventListener("change",e=>{state.range=e.target.value;render();});
+$("daySel").addEventListener("change",e=>{state.day=e.target.value;render();});
+$("reloadBtn").addEventListener("click",load);
+
+$("saveProfile").addEventListener("click",()=>{setTarget(state.team,inputTarget());render();toast("บันทึกโปรไฟล์แล้ว ✓");});
+$("resetTarget").addEventListener("click",()=>{const d=Object.assign({},DEFAULT_TARGETS[state.team]||FALLBACK_TARGET);setTarget(state.team,d);loadProfileInputs();render();toast("คืนค่าเริ่มต้นแล้ว");});
+
+$("saveUrl").addEventListener("click",()=>{setUrl($("csvUrl").value.trim());$("setup").open=false;toast("บันทึกลิงก์แล้ว กำลังโหลด…");load();showView("home");});
+$("clearUrl").addEventListener("click",()=>{$("csvUrl").value="";setUrl("");});
+
+/* add-meal modal */
+function openAdd(){$("a_date").value=state.day||TODAY_KEY;$("overlay").classList.add("open");}
+function closeAdd(){$("overlay").classList.remove("open");}
+$("fab").addEventListener("click",openAdd);
+$("cancelAdd").addEventListener("click",closeAdd);
+$("overlay").addEventListener("click",e=>{if(e.target===$("overlay"))closeAdd();});
+$("addBtn").addEventListener("click",()=>{
+  const dv=$("a_date").value;if(!dv){alert("เลือกวันที่ก่อน");return;}
+  const arr=localEntries();
+  arr.push({dateKey:dv,team:state.team,meal:$("a_meal").value,cal:num(a_cal.value),pro:num(a_pro.value),fat:num(a_fat.value),car:num(a_car.value)});
+  saveLocal(arr);
+  a_cal.value=a_pro.value=a_fat.value=a_car.value="";
+  closeAdd();
+  if(state.view!=="home")showView("home");
+  state.day=dv;render();toast("เพิ่มมื้อแล้ว ✓");
 });
-document.getElementById("clearLocal").addEventListener("click",()=>{ if(confirm("ล้างรายการ local ทั้งหมด?")){ saveLocal([]); render(); } });
+$("clearLocal").addEventListener("click",()=>{if(confirm("ล้างรายการ local ทั้งหมด?")){saveLocal([]);render();toast("ล้าง local แล้ว");}});
+
+/* one-time migration: replace old auto-saved TitchJane default (1500/110/50/150) with new target */
+(function(){const s=targetsStore();const t=s.TitchJane;if(t&&t.cal===1500&&t.pro===110&&t.fat===50&&t.car===150){s.TitchJane={cal:1290,pro:110,fat:40,car:130};saveTargets(s);}})();
 
 /* init */
-document.getElementById("csvUrl").value=getUrl();
+$("csvUrl").value=getUrl();
+showView("home");
 load();
 </script>
 </body>
