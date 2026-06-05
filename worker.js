@@ -51,9 +51,9 @@ export default {
       return json({ error: "AI run failed", detail: String(e && e.message || e) }, 502, cors);
     }
 
-    const text = (out && (out.response || out.result || "")).toString();
+    const text = pickText(out);
     const parsed = extractJSON(text);
-    if (!parsed) return json({ error: "Could not parse model output", raw: text.slice(0, 400) }, 502, cors);
+    if (!parsed) return json({ error: "Could not parse model output", raw: JSON.stringify(out).slice(0, 600) }, 502, cors);
 
     return json({
       calories: numOf(parsed.calories),
@@ -80,6 +80,26 @@ async function runModel(env, payload) {
   }
 }
 
+function pickText(out) {
+  if (out == null) return "";
+  if (typeof out === "string") return out;
+  const r = out.response;
+  if (typeof r === "string") return r;
+  if (r && typeof r === "object") {
+    if (typeof r.content === "string") return r.content;
+    if (typeof r.text === "string") return r.text;
+    if (Array.isArray(r.content)) return r.content.map(c => (c && (c.text || c.content)) || "").join("\n");
+    return JSON.stringify(r);
+  }
+  if (typeof out.result === "string") return out.result;
+  if (out.result && typeof out.result.response === "string") return out.result.response;
+  if (typeof out.text === "string") return out.text;
+  if (Array.isArray(out.choices) && out.choices[0]) {
+    const m = out.choices[0].message || out.choices[0];
+    if (m && typeof m.content === "string") return m.content;
+  }
+  return JSON.stringify(out);
+}
 function numOf(v) {
   if (typeof v === "number") return v;
   const n = parseFloat(String(v ?? "").replace(/[, ]/g, ""));
