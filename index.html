@@ -462,14 +462,14 @@ function renderCharts(days,tgt){
   const labels=days.map(d=>d.dateLabel.replace(/ \d{4}$/,""));
   if(calChart)calChart.destroy();
   calChart=new Chart($("calChart"),{type:"bar",data:{labels,datasets:[
-    {label:"Calories",data:days.map(d=>d.cal),backgroundColor:"#93c5fd",borderColor:"#2563eb",borderWidth:1,borderRadius:4},
+    {label:"Calories",data:days.map(d=>d.cal),backgroundColor:"#3b82f6",borderColor:"#2563eb",borderWidth:1,borderRadius:5,maxBarThickness:34},
     {label:"เป้าหมาย",type:"line",data:days.map(()=>tgt.cal),borderColor:"#dc2626",borderWidth:2,pointRadius:0,borderDash:[5,4]}]},
     options:{responsive:true,plugins:{legend:{labels:{boxWidth:12}}},scales:{y:{beginAtZero:true}}}});
   if(macroChart)macroChart.destroy();
   macroChart=new Chart($("macroChart"),{type:"line",data:{labels,datasets:[
-    {label:"Protein",data:days.map(d=>d.pro),borderColor:"#16a34a",borderWidth:2,tension:.25,pointRadius:2},
-    {label:"Fats",data:days.map(d=>d.fat),borderColor:"#d97706",borderWidth:2,tension:.25,pointRadius:2},
-    {label:"Carb",data:days.map(d=>d.car),borderColor:"#7c3aed",borderWidth:2,tension:.25,pointRadius:2}]},
+    {label:"Protein",data:days.map(d=>d.pro),borderColor:"#dc2626",backgroundColor:"#dc2626",borderWidth:2,tension:.25,pointRadius:2},
+    {label:"Fats",data:days.map(d=>d.fat),borderColor:"#f59e0b",backgroundColor:"#f59e0b",borderWidth:2,tension:.25,pointRadius:2},
+    {label:"Carb",data:days.map(d=>d.car),borderColor:"#2563eb",backgroundColor:"#2563eb",borderWidth:2,tension:.25,pointRadius:2}]},
     options:{responsive:true,plugins:{legend:{labels:{boxWidth:12}}},scales:{y:{beginAtZero:true}}}});
 }
 
@@ -512,8 +512,7 @@ async function load(){
     RAW=parseRawCSV(text);
     if(!RAW.length)throw new Error("ไม่พบแถวข้อมูล — ตรวจว่าเผยแพร่ชีต Raw เป็น CSV");
     buildTeams();
-    const entered=RAW.filter(r=>r.cal||r.pro||r.fat||r.car).length;
-    $("sub").textContent=`${state.team} • อ่าน ${RAW.length} แถว • มีข้อมูล ${entered} วัน`;
+    $("sub").textContent=state.team;
     render();
   }catch(e){
     RAW=[];buildTeams();render();
@@ -525,7 +524,7 @@ async function load(){
 /* events */
 $("tabHome").addEventListener("click",()=>showView("home"));
 $("tabProfile").addEventListener("click",()=>showView("profile"));
-$("teamSel").addEventListener("change",e=>{state.team=e.target.value;state.day=TODAY_KEY;loadProfileInputs();render();$("sub").textContent=state.team+(RAW.length?` • อ่าน ${RAW.length} แถว`:"");});
+$("teamSel").addEventListener("change",e=>{state.team=e.target.value;state.day=TODAY_KEY;loadProfileInputs();render();$("sub").textContent=state.team;});
 $("rangeSel").addEventListener("change",e=>{state.range=e.target.value;render();});
 $("daySel").addEventListener("change",e=>{state.day=e.target.value;render();});
 $("reloadBtn").addEventListener("click",load);
