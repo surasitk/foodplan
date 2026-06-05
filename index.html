@@ -163,16 +163,6 @@
     </div>
 
     <div class="card">
-      <h2>แนวโน้มแคลอรี่ vs เป้าหมาย</h2>
-      <canvas id="calChart"></canvas>
-    </div>
-
-    <div class="card">
-      <h2>แนวโน้มสารอาหาร (g)</h2>
-      <canvas id="macroChart"></canvas>
-    </div>
-
-    <div class="card">
       <h2>ตารางรายวัน + Sufficiency</h2>
       <label class="fld" style="margin-bottom:10px">ช่วงเวลา (ล่าสุดรวมวันนี้)
         <select id="rangeSel">
@@ -199,6 +189,16 @@
         <span><span class="dot over"></span>เกิน (มากไป)</span>
         <span><span class="dot under"></span>ขาด (ยังไม่ครบ)</span>
       </div>
+    </div>
+
+    <div class="card">
+      <h2>แนวโน้มแคลอรี่ vs เป้าหมาย <span class="note">— ตามช่วงเวลาที่เลือก</span></h2>
+      <canvas id="calChart"></canvas>
+    </div>
+
+    <div class="card">
+      <h2>แนวโน้มสารอาหาร (g) <span class="note">— ตามช่วงเวลาที่เลือก</span></h2>
+      <canvas id="macroChart"></canvas>
     </div>
 
   </section>
@@ -457,7 +457,7 @@ function render(){
   if(!tableLoadedOnce){document.querySelector("#dailyTable tbody").innerHTML=skeletonRows();setTimeout(function(){tableLoadedOnce=true;fillTable(entered,tgt);},350);}
   else fillTable(entered,tgt);
 
-  renderCharts(entered.length?entered:days.slice(0,30),tgt);
+  renderCharts(windowDays(entered),tgt);
 
   const lc=localEntries().filter(r=>r.team===state.team).length;const ov=countOverrides(state.team);
   $("localNote").textContent=(lc||ov)?(`เพิ่มในเครื่อง ${lc} รายการ • แก้ไขมื้อ ${ov} รายการ (รวมในการคำนวณแล้ว)`):"ยังไม่มีข้อมูลที่เพิ่ม/แก้ในเครื่อง";
@@ -478,10 +478,10 @@ function renderCharts(days,tgt){
 }
 
 function keyMinusDays(k,n){var p=k.split("-");var d=new Date(+p[0],+p[1]-1,+p[2]);d.setDate(d.getDate()-n);return dateKey(d);}
+function windowDays(entered){var N=+state.range||7,start=keyMinusDays(TODAY_KEY,N-1);return entered.filter(function(d){return d.dateKey>=start&&d.dateKey<=TODAY_KEY;});}
 function skeletonRows(){var r="";for(var i=0;i<6;i++)r+='<tr><td colspan="9" style="padding:10px 8px"><div class="sk" style="height:16px"></div></td></tr>';return r;}
 function fillTable(entered,tgt){
-  var N=+state.range||7,start=keyMinusDays(TODAY_KEY,N-1);
-  var rows=entered.filter(function(d){return d.dateKey>=start&&d.dateKey<=TODAY_KEY;}).slice().sort(function(a,b){return b.dateObj-a.dateObj;});
+  var rows=windowDays(entered).slice().sort(function(a,b){return b.dateObj-a.dateObj;});
   var tb=document.querySelector("#dailyTable tbody");
   tb.innerHTML=rows.length?rows.map(function(d){var cs=d.cal-tgt.cal,ps=d.pro-tgt.pro,fs=d.fat-tgt.fat,rs=d.car-tgt.car;
     var stc=sufStatus("cal",d.cal,tgt.cal),stp=sufStatus("pro",d.pro,tgt.pro),stf=sufStatus("fat",d.fat,tgt.fat),str=sufStatus("car",d.car,tgt.car);
