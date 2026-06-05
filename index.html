@@ -75,7 +75,7 @@
   .meal .macros b{color:var(--text);}
 
   .tablewrap{overflow:auto;border:1px solid var(--border);border-radius:10px;-webkit-overflow-scrolling:touch;}
-  table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:520px;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:340px;}
   th,td{padding:8px;text-align:center;border-bottom:1px solid var(--border);white-space:nowrap;}
   th{color:var(--muted);background:#fbfcfd;position:sticky;top:0;}
   td.date,th.date{text-align:left;position:sticky;left:0;background:#fff;}
@@ -163,7 +163,7 @@
     </div>
 
     <div class="card">
-      <h2>ตารางรายวัน + Sufficiency</h2>
+      <h2>ตารางรายวัน</h2>
       <label class="fld" style="margin-bottom:10px">ช่วงเวลา (ล่าสุดรวมวันนี้)
         <select id="rangeSel">
           <option value="3">3 วันล่าสุด</option>
@@ -176,15 +176,11 @@
         <table id="dailyTable">
           <thead><tr>
             <th class="date">Date</th>
-            <th>Cal</th><th>Cal Suf</th>
-            <th>Protein</th><th>Prot Suf</th>
-            <th>Fats</th><th>Fats Suf</th>
-            <th>Carb</th><th>Carb Suf</th>
+            <th>Cal</th><th>Protein</th><th>Fats</th><th>Carb</th>
           </tr></thead><tbody></tbody>
         </table>
       </div>
       <div class="legend">
-        <span>Suf = ที่กินจริง − เป้าหมาย</span>
         <span><span class="dot ok"></span>พอดี</span>
         <span><span class="dot over"></span>เกิน (มากไป)</span>
         <span><span class="dot under"></span>ขาด (ยังไม่ครบ)</span>
@@ -465,9 +461,9 @@ function render(){
 function renderCharts(days,tgt){
   const labels=days.map(d=>d.dateLabel.replace(/ \d{4}$/,""));
   if(calChart)calChart.destroy();
-  calChart=new Chart($("calChart"),{type:"line",data:{labels,datasets:[
-    {label:"Calories",data:days.map(d=>d.cal),fill:true,backgroundColor:"rgba(37,99,235,.15)",borderColor:"#2563eb",borderWidth:2,tension:.3,pointRadius:2},
-    {label:"เป้าหมาย",data:days.map(()=>tgt.cal),fill:false,borderColor:"#dc2626",borderWidth:2,pointRadius:0,borderDash:[5,4]}]},
+  calChart=new Chart($("calChart"),{type:"bar",data:{labels,datasets:[
+    {label:"Calories",data:days.map(d=>d.cal),backgroundColor:"#93c5fd",borderColor:"#2563eb",borderWidth:1,borderRadius:4},
+    {label:"เป้าหมาย",type:"line",data:days.map(()=>tgt.cal),borderColor:"#dc2626",borderWidth:2,pointRadius:0,borderDash:[5,4]}]},
     options:{responsive:true,plugins:{legend:{labels:{boxWidth:12}}},scales:{y:{beginAtZero:true}}}});
   if(macroChart)macroChart.destroy();
   macroChart=new Chart($("macroChart"),{type:"line",data:{labels,datasets:[
@@ -479,18 +475,18 @@ function renderCharts(days,tgt){
 
 function keyMinusDays(k,n){var p=k.split("-");var d=new Date(+p[0],+p[1]-1,+p[2]);d.setDate(d.getDate()-n);return dateKey(d);}
 function windowDays(entered){var N=+state.range||7,start=keyMinusDays(TODAY_KEY,N-1);return entered.filter(function(d){return d.dateKey>=start&&d.dateKey<=TODAY_KEY;});}
-function skeletonRows(){var r="";for(var i=0;i<6;i++)r+='<tr><td colspan="9" style="padding:10px 8px"><div class="sk" style="height:16px"></div></td></tr>';return r;}
+function skeletonRows(){var r="";for(var i=0;i<6;i++)r+='<tr><td colspan="5" style="padding:10px 8px"><div class="sk" style="height:16px"></div></td></tr>';return r;}
 function fillTable(entered,tgt){
   var rows=windowDays(entered).slice().sort(function(a,b){return b.dateObj-a.dateObj;});
   var tb=document.querySelector("#dailyTable tbody");
   tb.innerHTML=rows.length?rows.map(function(d){var cs=d.cal-tgt.cal,ps=d.pro-tgt.pro,fs=d.fat-tgt.fat,rs=d.car-tgt.car;
     var stc=sufStatus("cal",d.cal,tgt.cal),stp=sufStatus("pro",d.pro,tgt.pro),stf=sufStatus("fat",d.fat,tgt.fat),str=sufStatus("car",d.car,tgt.car);
     return '<tr class="'+(d.dateKey===TODAY_KEY?"today-row":"")+'"><td class="date">'+d.dateLabel+'</td>'
-      +'<td>'+fmt(d.cal)+'</td><td class="sufcell cl-'+stc+'">'+sufStr(cs)+'</td>'
-      +'<td>'+fmt(d.pro)+'</td><td class="sufcell cl-'+stp+'">'+sufStr(ps)+'</td>'
-      +'<td>'+fmt(d.fat)+'</td><td class="sufcell cl-'+stf+'">'+sufStr(fs)+'</td>'
-      +'<td>'+fmt(d.car)+'</td><td class="sufcell cl-'+str+'">'+sufStr(rs)+'</td></tr>';}).join("")
-    :'<tr><td colspan="9" class="muted">ไม่มีข้อมูลในช่วงนี้</td></tr>';
+      +'<td class="sufcell cl-'+stc+'">'+sufStr(cs)+'</td>'
+      +'<td class="sufcell cl-'+stp+'">'+sufStr(ps)+'</td>'
+      +'<td class="sufcell cl-'+stf+'">'+sufStr(fs)+'</td>'
+      +'<td class="sufcell cl-'+str+'">'+sufStr(rs)+'</td></tr>';}).join("")
+    :'<tr><td colspan="5" class="muted">ไม่มีข้อมูลในช่วงนี้</td></tr>';
 }
 
 /* teams */
