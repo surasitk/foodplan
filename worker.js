@@ -1,21 +1,21 @@
 /**
- * Food Plan — AI nutrition estimator (Cloudflare Worker)
- * Proxies food photos to the Anthropic (Claude) vision API and returns estimated macros.
+ * Food Plan — AI nutrition estimator (Cloudflare Workers AI, free)
+ * Uses the built-in Workers AI binding (no external API key needed).
  *
- * Secrets / vars to set in Cloudflare:
- *   ANTHROPIC_API_KEY  (required, set as a Secret — never commit it)
- *   MODEL              (optional, default "claude-sonnet-4-6")
- *   ALLOWED_ORIGIN     (optional, e.g. "https://surasitk.github.io" — default "*")
+ * Setup in Cloudflare:
+ *   Settings -> Bindings -> Add -> Workers AI -> Variable name: AI
+ *   (Optional) Settings -> Variables -> ALLOWED_ORIGIN = https://surasitk.github.io
  *
- * The app POSTs: { "images": ["data:image/jpeg;base64,...", ...] }
- * The Worker returns: { calories, protein, fats, carbs, items, confidence, note }
+ * The app POSTs: { "images": ["data:image/jpeg;base64,...", ...], "description": "..." }
+ * Returns: { calories, protein, fats, carbs, items, confidence, note }
  */
 
-const PROMPT = `You are a careful nutrition estimator. You are given a food photo (optional), a text description (optional), or both — describing ONE meal (there may be several dishes, or the same meal from multiple angles — do NOT double count).
-Estimate the TOTAL nutrition for the whole meal. If a text description is provided, weigh it heavily (it may specify ingredients or portions the photo can't show).
-Reply with ONLY a JSON object, no markdown, no prose, exactly in this shape:
-{"calories":<kcal as number>,"protein":<grams number>,"fats":<grams number>,"carbs":<grams number>,"items":["dish — est. portion", "..."],"confidence":"low|medium|high","note":"<short note in Thai>"}
-Rules: numbers only (no units, no ranges — pick a single best estimate). Account for cooking oil and sauces. If portion is unclear, assume a typical single serving.`;
+const MODEL = "@cf/meta/llama-3.2-11b-vision-instruct";
+
+const PROMPT = `You are a careful nutrition estimator. You are given a food photo (optional), a text description (optional), or both, describing ONE meal. Estimate the TOTAL nutrition for the whole meal. If a text description is provided, weigh it heavily.
+Reply with ONLY a JSON object, no markdown, no extra words, exactly this shape:
+{"calories":<kcal number>,"protein":<grams number>,"fats":<grams number>,"carbs":<grams number>,"items":["dish - est portion","..."],"confidence":"low|medium|high","note":"<short note in Thai>"}
+Rules: numbers only (no units, no ranges). Account for cooking oil and sauces. If portion is unclear assume one typical serving.`;
 
 export default {
   async fetch(request, env) {
@@ -25,64 +25,37 @@ export default {
       "Access-Control-Allow-Headers": "Content-Type",
       "Access-Control-Max-Age": "86400",
     };
-
     if (request.method === "OPTIONS") return new Response(null, { headers: cors });
     if (request.method !== "POST") return json({ error: "Use POST" }, 405, cors);
-    if (!env.ANTHROPIC_API_KEY) return json({ error: "Server is missing ANTHROPIC_API_KEY" }, 500, cors);
+    if (!env.AI) return json({ error: "Workers AI binding 'AI' is not configured" }, 500, cors);
 
     let body;
     try { body = await request.json(); }
     catch { return json({ error: "Invalid JSON body" }, 400, cors); }
 
-    const images = Array.isArray(body.images) ? body.images : [];
+    const images = Array.isArray(body.images) ? body.images.slice(0, 3) : [];
     const description = (body.description || "").toString().trim();
     if (!images.length && !description) return json({ error: "No images or description provided" }, 400, cors);
 
-    const content = [];
-    for (const img of images.slice(0, 6)) {
-      const m = /^data:(image\/[\w.+-]+);base64,(.+)$/s.exec(img || "");
-      const media_type = m ? m[1] : "image/jpeg";
-      const data = m ? m[2] : img;
-      content.push({ type: "image", source: { type: "base64", media_type, data } });
+    const content = [{ type: "text", text: description ? PROMPT + "\n\nUser description (weigh heavily): " + description : PROMPT }];
+    for (const img of images) {
+      if (typeof img === "string" && img.startsWith("data:")) {
+        content.push({ type: "image_url", image_url: { url: img } });
+      }
     }
-    const promptText = description
-      ? PROMPT + "\n\nUser-provided description (ingredients / portions — weigh this heavily): " + description
-      : PROMPT;
-    content.push({ type: "text", text: promptText });
 
-    const payload = {
-      model: env.MODEL || "claude-sonnet-4-6",
-      max_tokens: 700,
-      messages: [{ role: "user", content }],
-    };
-
-    let resp;
+    let out;
     try {
-      resp = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": env.ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01",
-          "content-type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      out = await runModel(env, { messages: [{ role: "user", content }], max_tokens: 700, temperature: 0.2 });
     } catch (e) {
-      return json({ error: "Failed to reach Anthropic", detail: String(e) }, 502, cors);
+      return json({ error: "AI run failed", detail: String(e && e.message || e) }, 502, cors);
     }
 
-    if (!resp.ok) {
-      const detail = await resp.text();
-      return json({ error: "Anthropic API error", status: resp.status, detail }, 502, cors);
-    }
-
-    const out = await resp.json();
-    const text = (out.content || []).map(c => c.text || "").join("\n");
+    const text = (out && (out.response || out.result || "")).toString();
     const parsed = extractJSON(text);
-    if (!parsed) return json({ error: "Could not parse model output", raw: text }, 502, cors);
+    if (!parsed) return json({ error: "Could not parse model output", raw: text.slice(0, 400) }, 502, cors);
 
-    // normalise to numbers
-    const clean = {
+    return json({
       calories: numOf(parsed.calories),
       protein: numOf(parsed.protein),
       fats: numOf(parsed.fats),
@@ -90,10 +63,22 @@ export default {
       items: Array.isArray(parsed.items) ? parsed.items.slice(0, 12) : [],
       confidence: parsed.confidence || "",
       note: parsed.note || "",
-    };
-    return json(clean, 200, cors);
+    }, 200, cors);
   },
 };
+
+async function runModel(env, payload) {
+  try {
+    return await env.AI.run(MODEL, payload);
+  } catch (e) {
+    const msg = String(e && e.message || e);
+    if (/agree|license|consent|accept/i.test(msg)) {
+      try { await env.AI.run(MODEL, { prompt: "agree" }); } catch (_) {}
+      return await env.AI.run(MODEL, payload);
+    }
+    throw e;
+  }
+}
 
 function numOf(v) {
   if (typeof v === "number") return v;
@@ -101,8 +86,9 @@ function numOf(v) {
   return isNaN(n) ? 0 : n;
 }
 function extractJSON(t) {
+  if (!t) return null;
   try { return JSON.parse(t); } catch {}
-  const m = t && t.match(/\{[\s\S]*\}/);
+  const m = t.match(/\{[\s\S]*\}/);
   if (m) { try { return JSON.parse(m[0]); } catch {} }
   return null;
 }
