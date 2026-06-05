@@ -338,7 +338,8 @@ const getTarget=t=>{const s=targetsStore();return s[t]||Object.assign({},DEFAULT
 const setTarget=(t,v)=>{const s=targetsStore();s[t]=v;saveTargets(s);};
 const localEntries=()=>{try{return JSON.parse(LS.getItem("fp_local")||"[]");}catch(e){return[];}};
 const saveLocal=a=>LS.setItem("fp_local",JSON.stringify(a));
-const getAiUrl=()=>LS.getItem("fp_aiurl")||"";
+const DEFAULT_AI="https://black-art-cfdc.tae-surasitk.workers.dev";
+const getAiUrl=()=>{const v=LS.getItem("fp_aiurl");return v===null?DEFAULT_AI:v;};
 const setAiUrl=u=>LS.setItem("fp_aiurl",u);
 /* per-meal edits (overrides), stored per team/date/meal. value object replaces that slot; null hides it */
 const overridesStore=()=>{try{return JSON.parse(LS.getItem("fp_overrides")||"{}");}catch(e){return{};}};
